@@ -1,9 +1,11 @@
 {% from "golang/map.jinja" import config with context %}
-# :TODO: Move this shit into defaults
+# Installing Golang is pretty easy, thanks Googs, so basically all we need to
+# do is pull down an archive and unpack it somewhere.  To allow for versioning,
+# we use a extract the tarball to <prefix>/golang/<version>/go and then create
+# a symlink back to `golang:lookup:go_root` which defaults to /usr/local/go
 
-# pull down a copy of the archive the first time we run but check
-# with the salt filesystem for a copy before hitting the web.
-# regardless of source, they should all pass the hash check
+# In the interest of being good netizens, we will only pull down the archive
+# if golang is not installed or the specific version is missing
 golang|cache-archive:
   file.managed:
     - name: /tmp/{{ config.archive_name }}
@@ -12,25 +14,30 @@ golang|cache-archive:
     - user: root
     - group: root
     - unless:
-        - test -f /tmp/{{ config.archive_name }}
+        # asserts go is on our path
+        - which go
+        # asserts the version of go
+        - test -x {{ config.base_dir }}/go/bin/go
+        
 
-# Extract the archive locally to {{ config.base_dir }}/go
-# which is useful if we ever need to handle multiple versions
+# Extract the archive locally to golang:lookup:base_dir: which has our version
+# schema already baked in and extract the archive if necessary
 golang|extract-archive:
   file.directory:
     - names:
         - {{ config.base_dir }}
+        - {{ config.go_path }}
     - user: root
     - group: root
     - mode: 775
-    - makedirs: true
+    - makedirs: truen
+    - unless:
+        - test -d {{ config.base_dir }}
     - recurse:
         - user
         - group
         - mode
-  # golang|cache-archive provides us with a cached copy of the archive
-  # so we only need to look in a single place when we actually exract
-  # if the version of go is already installed and is on our path, skip extract
+
   archive.extracted:
     - name: {{ config.base_dir }}
     - source: "/tmp/{{ config.archive_name }}"
@@ -39,13 +46,15 @@ golang|extract-archive:
     - user: root
     - group: root
     - tar_options: v
-    - require:
+    - watch:
         - file: golang|cache-archive
+    # golang|cache-archive already applies these predicates and the watch
+    # statement should cover us, paranoia is an applied art.
     - unless:
         - go version | grep {{ config.version }}
         - test -x {{ config.base_dir }}/go/bin/go
 
-# add a symlink from versioned install to /usr/local/go
+# add a symlink from versioned install to point at golang:lookup:go_root
 golang|update-alternatives:
   alternatives.install:
     - name: golang-home-link
@@ -55,6 +64,7 @@ golang|update-alternatives:
     - order: 10
     - watch:
         - archive: golang|extract-archive
+
 
 # add symlinks to /usr/bin for the three go commands
 {% for i in ['go', 'godoc', 'gofmt'] %}
@@ -69,6 +79,8 @@ golang|create-symlink-{{ i }}:
         - archive: golang|extract-archive
 {% endfor %}
 
+
+# sets up the necessary environment variables required for golang usage
 golang|setup-bash-profile:
   file.managed:
     - name: /etc/profile.d/golang.sh
@@ -80,3 +92,4 @@ golang|setup-bash-profile:
     - user: root
     - group: root
     
+      
