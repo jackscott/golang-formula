@@ -1,0 +1,15 @@
+{% load_yaml as meta %}
+prefix: /usr/local
+go_root: /usr/local/go
+go_path: /var/lib/golang
+version: "1.6"
+archive_hash: "5470eac05d273c74ff8bac7bef5bad0b5abbd1c4052efbdbc8db45332e836b0b"
+{% endload %}
+
+{% load_yaml as rawmap %}
+Ubuntu:
+  {{ meta }}
+RedHat:
+  {{ meta }}
+{% endload %}
+
