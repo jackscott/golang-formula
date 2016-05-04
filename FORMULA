@@ -1,0 +1,7 @@
+name: golan
+os: RedHat, Debian, Ubuntu, Suse, FreeBSD
+os_family: RedHat, Debian, Suse, FreeBSD
+version: 201605
+release: 1
+summary: Formula for installing Golang
+description: Formula for installing Golang from source
