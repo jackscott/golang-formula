@@ -1,13 +1,5 @@
-{% from "golang/defaults.yaml" import rawmap with context %}
-
-{% set config = {} %}
-# Grains should override PIllars which in turn override `rawmap`
-{% with lookup = salt['pillar.get']('golang:lookup', {}) %}
-   # overlay the lookup map from the grains onto the pillar version
-   {% do lookup.update(salt['grains.get']('golang:lookup', {})) %}
-   # Now that we have the desired context we can now run `filter_by`
-   {% do config.update(salt['grains.filter_by'](rawmap, grain='os', merge=lookup)) %}
-{% endwith %}
+{% from "golang/defaults.yaml" import lookup_map with context %}
+{% set config = salt['grains.filter_by'](lookup_map, merge=salt['pillar.get']('golang:lookup', salt['grains.get']('golang:lookup', {}), merge=True), base='default') %}
 
 {% do config.update({
   'archive_name': 'go%s.linux-amd64.tar.gz'|format(config.version),
