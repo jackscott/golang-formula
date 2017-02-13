@@ -10,7 +10,7 @@ golang|cache-archive:
   file.managed:
     - name: /tmp/{{ config.archive_name }}
     - source: https://storage.googleapis.com/golang/{{ config.archive_name }}
-    - source_hash: sha256={{ config.archive_hash }}
+    - source_hash: https://storage.googleapis.com/golang/{{ config.archive_name }}.sha256
     - user: root
     - group: root
     - unless:
@@ -29,8 +29,8 @@ golang|extract-archive:
         - {{ config.go_path }}
     - user: root
     - group: root
-    - mode: 775
-    - makedirs: truen
+    - mode: 755
+    - makedirs: True
     - unless:
         - test -d {{ config.base_dir }}
     - recurse:
@@ -41,7 +41,7 @@ golang|extract-archive:
   archive.extracted:
     - name: {{ config.base_dir }}
     - source: "/tmp/{{ config.archive_name }}"
-    - source_hash: sha256={{ config.archive_hash }}
+    - source_hash: https://storage.googleapis.com/golang/{{ config.archive_name }}.sha256
     - archive_format: tar
     - user: root
     - group: root
