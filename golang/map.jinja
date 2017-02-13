@@ -1,7 +1,27 @@
 {% from "golang/defaults.yaml" import lookup_map with context %}
 {% set config = salt['grains.filter_by'](lookup_map, merge=salt['pillar.get']('golang:lookup', salt['grains.get']('golang:lookup', {}), merge=True), base='default') %}
 
+{##
+Add any overrides based on CPU architecture.
+##}
+{% set cpu_arch_map = salt['grains.filter_by']({
+        'armv6l': {
+            "arch": 'armv6l'
+        },
+        'armv7l': {
+            "arch": 'armv6l'
+        },
+        'x86_64': {
+            "arch": 'amd64'
+        }
+  }
+  , grain="cpuarch"
+  , merge=salt['pillar.get']('golang:lookup'))
+%}
+{% do config.update(cpu_arch_map) %}
+
+
 {% do config.update({
-  'archive_name': 'go%s.linux-amd64.tar.gz'|format(config.version),
+  'archive_name': 'go%s.linux-%s.tar.gz'|format(config.version, config.arch),
   'base_dir': '%s/golang/%s'|format(config.prefix, config.version)
 }) %}
