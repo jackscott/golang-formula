@@ -45,7 +45,7 @@ golang|extract-archive:
     - archive_format: tar
     - user: root
     - group: root
-    - tar_options: v
+    - options: v
     - watch:
         - file: golang|cache-archive
     # golang|cache-archive already applies these predicates and the watch
