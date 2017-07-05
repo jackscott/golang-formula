@@ -4,9 +4,9 @@
   command -v go
 }
 
-@test "go version is 1.6" {
+@test "go version is 1.8.3" {
   run go version
-  [[ ${lines[0]} =~ "1.6" ]]
+  [[ ${lines[0]} =~ "1.8.3" ]]
 }
 
 @test "assert \$GOROOT is correct" {
@@ -17,5 +17,5 @@
 @test "verify debugging output is relevant and archive_hash is a 'known known'" {
   run bash -c "grep archive_hash /tmp/golang-formula.log"
   [ ${status} = 0 ]
-  [[ ${lines[0]} =~ "5470eac05d273c74ff8bac7bef5bad0b5abbd1c4052efbdbc8db45332e836b0b" ]]
+  [[ ${lines[0]} =~ "5f5dea2447e7dcfdc50fa6b94c512e58bfba5673c039259fd843f68829d99fa6" ]]
 }

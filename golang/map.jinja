@@ -1,5 +1,4 @@
-{% from "golang/defaults.yaml" import lookup_map with context %}
-{% set config = salt['grains.filter_by'](lookup_map, merge=salt['pillar.get']('golang:lookup', salt['grains.get']('golang:lookup', {}), merge=True), base='default') %}
+{% import_yaml 'golang/defaults.yaml' as default_settings %}
 
 {##
 Add any overrides based on CPU architecture.
@@ -18,10 +17,13 @@ Add any overrides based on CPU architecture.
   , grain="cpuarch"
   , merge=salt['pillar.get']('golang:lookup'))
 %}
-{% do config.update(cpu_arch_map) %}
 
+{% do default_settings.golang.update(cpu_arch_map) %}
 
-{% do config.update({
-  'archive_name': 'go%s.linux-%s.tar.gz'|format(config.version, config.arch),
-  'base_dir': '%s/golang/%s'|format(config.prefix, config.version)
+{## Merge in golang:lookup pillar ##}
+{% set golang = salt['pillar.get']('golang', default=default_settings.golang, merge=True) %}
+
+{% do golang.update({
+  'archive_name': 'go%s.linux-%s.tar.gz'|format(golang.version, golang.arch),
+  'base_dir': '%s/golang/%s'|format(golang.prefix, golang.version)
 }) %}
