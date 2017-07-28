@@ -2,7 +2,7 @@
 driver:
   name: vagrant
   network:
-    - ["private_network", { ip: "192.168.55.55"}]
+    - ["private_network", {ip: "192.168.55.55"}]
 
 provisioner:
   name: salt_solo

@@ -1,10 +1,6 @@
-{% load_yaml as lookup_map %}
-default:
+golang:
   prefix: /usr/local
   go_root: /usr/local/go
   go_path: /var/lib/golang
-  version: "1.6"
-  archive_hash: "5470eac05d273c74ff8bac7bef5bad0b5abbd1c4052efbdbc8db45332e836b0b"
-Debian: {}
-RedHat: {}
-{% endload %}
+  version: "1.8.3"
+  archive_hash: "5f5dea2447e7dcfdc50fa6b94c512e58bfba5673c039259fd843f68829d99fa6"
