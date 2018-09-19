@@ -1,3 +1,7 @@
 golang:
   lookup:
     version: 1.8.3
+
+  #'Alternatives system' priority (0 disables). zero is default.
+  linux:
+    #altpriority: {{ range(1, 9100000) | random }}
