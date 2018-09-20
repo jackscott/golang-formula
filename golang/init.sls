@@ -53,29 +53,33 @@ golang|extract-archive:
         - go version | grep {{ golang.version }}
         - test -x {{ golang.base_dir }}/go/bin/go
 
+  {%- if golang.linux.altpriority > 0 %}
+
 # add a symlink from versioned install to point at golang:lookup:go_root
 golang|update-alternatives:
   alternatives.install:
     - name: golang-home-link
     - link: {{ golang.go_root }}
     - path: {{ golang.base_dir }}/go/
-    - priority: 31
+    - priority: {{ golang.linux.altpriority }}
     - order: 10
     - watch:
         - archive: golang|extract-archive
 
 # add symlinks to /usr/bin for the three go commands
-{% for i in ['go', 'godoc', 'gofmt'] %}
+     {% for i in ['go', 'godoc', 'gofmt'] %}
 golang|create-symlink-{{ i }}:
   alternatives.install:
     - name: link-{{ i }}
     - link: /usr/bin/{{ i }}
     - path: {{ golang.go_root }}/bin/{{ i }}
-    - priority: 40
+    - priority: {{ golang.linux.altpriority }}
     - order: 10
     - watch:
         - archive: golang|extract-archive
-{% endfor %}
+     {% endfor %}
+
+  {%- endif %}
 
 # sets up the necessary environment variables required for golang usage
 golang|setup-bash-profile:
