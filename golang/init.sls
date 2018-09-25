@@ -45,6 +45,7 @@ golang|extract-archive:
     - user: root
     - group: root
     - options: v
+    - trim_output: True   {# works in 2018.3.2. onwards #}
     - watch:
         - file: golang|cache-archive
     # golang|cache-archive already applies these predicates and the watch
@@ -56,7 +57,7 @@ golang|extract-archive:
   {%- if golang.linux.altpriority > 0 %}
 
 # add a symlink from versioned install to point at golang:lookup:go_root
-golang|update-alternatives:
+golang|install-home-alternative:
   alternatives.install:
     - name: golang-home-link
     - link: {{ golang.go_root }}
@@ -66,8 +67,16 @@ golang|update-alternatives:
     - watch:
         - archive: golang|extract-archive
 
-# add symlinks to /usr/bin for the three go commands
+golang|set-home-alternative:
+  alternatives.set:
+    - name: golang-home-link
+    - path: {{ golang.base_dir }}/go/
+    - require:
+      - alternatives: golang|install-home-alternative
+
      {% for i in ['go', 'godoc', 'gofmt'] %}
+
+     #manage symlinks to /usr/bin for the three go commands
 golang|create-symlink-{{ i }}:
   alternatives.install:
     - name: link-{{ i }}
@@ -76,7 +85,18 @@ golang|create-symlink-{{ i }}:
     - priority: {{ golang.linux.altpriority }}
     - order: 10
     - watch:
-        - archive: golang|extract-archive
+      - archive: golang|extract-archive
+    - require:
+      - alternatives: golang|install-home-alternative
+      - alternatives: golang|set-home-alternative
+
+golang|set-symlink={{ i }}:
+  alternatives.set:
+    - name: link-{{ i }}
+    - path: {{ golang.go_root }}/bin/{{ i }}
+    - require:
+      - alternatives: golang|create-symlink-{{ i }}
+
      {% endfor %}
 
   {%- endif %}
