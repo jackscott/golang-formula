@@ -8,3 +8,4 @@ golang:
   #'Alternatives system' priority: 0 disables. zero is default
   linux:
     altpriority: 0
+
